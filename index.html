@@ -1,51 +1,382 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Turni Lavoro</title>
+
 <link rel="manifest" href="manifest.json">
-<style>
-body{font-family:Arial,sans-serif;max-width:500px;margin:auto;padding:16px}
-.btns button.active{font-weight:bold}
-input,button{width:100%;padding:12px;margin:6px 0}
-.row{display:flex;gap:10px}
-.row button{flex:1}
-</style>
+<link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
-<h2>Turni Lavoro</h2>
-<div class="row btns">
-<button id="pub">Pub</button>
-<button id="rist">Ristorante</button>
+
+<!-- ===================== -->
+<!-- HOME -->
+<!-- ===================== -->
+
+<div id="homePage">
+
+    <header>
+
+        <h1>Turni Lavoro</h1>
+
+    </header>
+
+    <section class="card">
+
+        <div class="category-container">
+
+            <button
+                id="pubBtn"
+                class="category-btn active">
+
+                Pub
+
+            </button>
+
+            <button
+                id="ristoranteBtn"
+                class="category-btn">
+
+                Ristorante
+
+            </button>
+
+        </div>
+
+        <div class="field">
+
+            <label for="dataInput">
+
+                Data
+
+            </label>
+
+            <input
+                type="date"
+                id="dataInput">
+
+        </div>
+
+        <div class="field">
+
+            <label for="inizioInput">
+
+                Orario di inizio
+
+            </label>
+
+            <input
+                type="time"
+                id="inizioInput">
+
+        </div>
+
+        <div class="field">
+
+            <label for="fineInput">
+
+                Orario di fine
+
+            </label>
+
+            <input
+                type="time"
+                id="fineInput">
+
+        </div>
+
+        <button
+            id="salvaBtn"
+            class="primary-btn">
+
+            Salva turno
+
+        </button>
+
+    </section>
+
+    <section class="card">
+
+        <button
+            id="archivioBtn"
+            class="secondary-btn">
+
+            Archivio
+
+        </button>
+
+        <button
+            id="impostazioniBtn"
+            class="secondary-btn">
+
+            Impostazioni
+
+        </button>
+
+    </section>
+
 </div>
-<input type="date" id="date">
-<input type="time" id="start">
-<input type="time" id="end">
-<button onclick="saveTurn()">Salva</button>
-<button onclick="showArchive()">Archivio</button>
-<pre id="out"></pre>
-<script>
-let category="Pub";
-pub.onclick=()=>{category="Pub";pub.classList.add("active");rist.classList.remove("active")}
-rist.onclick=()=>{category="Ristorante";rist.classList.add("active");pub.classList.remove("active")}
-pub.click();
 
-function getTurns(){return JSON.parse(localStorage.getItem("turns")||"[]")}
-function setTurns(t){localStorage.setItem("turns",JSON.stringify(t))}
+<!-- ===================== -->
+<!-- ARCHIVIO -->
+<!-- ===================== -->
 
-function saveTurn(){
- const turns=getTurns();
- turns.push({date:date.value,start:start.value,end:end.value,category});
- setTurns(turns);
- alert("Turno salvato");
-}
+<div
+    id="archivioPage"
+    class="hidden">
 
-function showArchive(){
- const turns=getTurns();
- out.textContent=turns.map(t=>`${t.date} ${t.start}-${t.end} (${t.category})`).join("\n");
-}
-date.valueAsDate=new Date();
-</script>
+    <header>
+
+        <h1>Archivio</h1>
+
+    </header>
+
+    <section class="card">
+
+        <div class="filter-container">
+
+            <button
+                id="filterAllBtn"
+                class="filter-btn active">
+
+                Tutti
+
+            </button>
+
+            <button
+                id="filterPubBtn"
+                class="filter-btn">
+
+                Pub
+
+            </button>
+
+            <button
+                id="filterRistoranteBtn"
+                class="filter-btn">
+
+                Ristorante
+
+            </button>
+
+        </div>
+
+    </section>
+
+    <section
+        id="archivioContainer">
+
+    </section>
+
+    <section class="card">
+
+        <button
+            id="backHomeBtn"
+            class="secondary-btn">
+
+            Torna alla Home
+
+        </button>
+
+    </section>
+
+</div>
+
+<!-- ===================== -->
+<!-- IMPOSTAZIONI -->
+<!-- ===================== -->
+
+<div
+    id="impostazioniPage"
+    class="hidden">
+
+    <header>
+
+        <h1>Impostazioni</h1>
+
+    </header>
+
+    <section class="card">
+
+        <label for="nomeInput">
+
+            Nome e cognome
+
+        </label>
+
+        <input
+            type="text"
+            id="nomeInput"
+            placeholder="Nome e cognome">
+
+        <button
+            id="salvaImpostazioniBtn"
+            class="primary-btn">
+
+            Salva impostazioni
+
+        </button>
+
+    </section>
+
+    <section class="card">
+
+        <h2>Backup</h2>
+
+        <button
+            id="exportBackupBtn"
+            class="secondary-btn">
+
+            Esporta backup
+
+        </button>
+
+        <input
+            type="file"
+            id="importBackupInput"
+            accept=".json">
+
+        <button
+            id="importBackupBtn"
+            class="secondary-btn">
+
+            Importa backup
+
+        </button>
+
+    </section>
+
+    <section class="card">
+
+        <button
+            id="backHomeFromSettingsBtn"
+            class="secondary-btn">
+
+            Torna alla Home
+
+        </button>
+
+    </section>
+
+</div>
+
+<!-- ===================== -->
+<!-- MODALE MODIFICA -->
+<!-- ===================== -->
+
+<div
+    id="modalOverlay"
+    class="modal hidden">
+
+    <div class="modal-content">
+
+        <h2>
+
+            Modifica turno
+
+        </h2>
+
+        <div class="field">
+
+            <label>
+
+                Data
+
+            </label>
+
+            <input
+                type="date"
+                id="modalData">
+
+        </div>
+
+        <div class="field">
+
+            <label>
+
+                Inizio
+
+            </label>
+
+            <input
+                type="time"
+                id="modalInizio">
+
+        </div>
+
+        <div class="field">
+
+            <label>
+
+                Fine
+
+            </label>
+
+            <input
+                type="time"
+                id="modalFine">
+
+        </div>
+
+        <div class="category-container">
+
+            <button
+                id="modalPubBtn"
+                class="category-btn">
+
+                Pub
+
+            </button>
+
+            <button
+                id="modalRistoranteBtn"
+                class="category-btn">
+
+                Ristorante
+
+            </button>
+
+        </div>
+
+        <div class="modal-actions">
+
+            <button
+                id="saveEditBtn"
+                class="primary-btn">
+
+                Salva modifiche
+
+            </button>
+
+            <button
+                id="deleteTurnBtn"
+                class="danger-btn">
+
+                Elimina turno
+
+            </button>
+
+            <button
+                id="closeModalBtn"
+                class="secondary-btn">
+
+                Chiudi
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
 </body>
 </html>
