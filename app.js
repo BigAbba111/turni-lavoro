@@ -1177,7 +1177,6 @@ con la presente inoltro il riepilogo delle ore lavorate nel mese di ${mese} ${gr
     });
 
     testo +=
-
 `
 Cordiali saluti,
 
