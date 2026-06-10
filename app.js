@@ -182,7 +182,7 @@ function getSettings() {
             "settings"
         )
         ||
-        '{"nome":"Gabriele Abbandonati"}'
+        '{"nome":""}'
     );
 
 }
@@ -491,6 +491,14 @@ const NOMI_MESI = [
 
 ];
 
+function formattaData(data){
+
+    const parti =
+        data.split("-");
+
+    return `${parti[2]}/${parti[1]}/${parti[0]}`;
+
+}
 // ======================
 // FILTRI ARCHIVIO
 // ======================
@@ -814,12 +822,9 @@ function renderArchivio(){
             <div class="turn-date">
 
             ${
-                new Date(
-                    turno.data
-                )
-                .toLocaleDateString(
-                    "it-IT"
-                )
+               formattaData(
+    turno.data
+)
             }
 
             </div>
