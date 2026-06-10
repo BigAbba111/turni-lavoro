@@ -881,3 +881,541 @@ function renderArchivio(){
     });
 
 }
+
+// ======================
+// GESTIONE MODALE
+// ======================
+
+function apriModaleTurno(id) {
+
+    const turni = getTurni();
+
+    const turno = turni.find(
+        t => t.id === id
+    );
+
+    if (!turno) {
+        return;
+    }
+
+    turnoSelezionato = id;
+
+    modalData.value = turno.data;
+    modalInizio.value = turno.inizio;
+    modalFine.value = turno.fine;
+
+    categoriaModale =
+        turno.categoria;
+
+    aggiornaCategoriaModale();
+
+    modalOverlay.classList.remove(
+        "hidden"
+    );
+
+}
+
+function chiudiModale() {
+
+    modalOverlay.classList.add(
+        "hidden"
+    );
+
+    turnoSelezionato = null;
+
+}
+
+// ======================
+// CATEGORIA MODALE
+// ======================
+
+function aggiornaCategoriaModale() {
+
+    modalPubBtn.classList.remove(
+        "active"
+    );
+
+    modalRistoranteBtn.classList.remove(
+        "active"
+    );
+
+    if (
+        categoriaModale === "Pub"
+    ) {
+
+        modalPubBtn.classList.add(
+            "active"
+        );
+
+    } else {
+
+        modalRistoranteBtn.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+modalPubBtn.addEventListener(
+    "click",
+    () => {
+
+        categoriaModale = "Pub";
+
+        aggiornaCategoriaModale();
+
+    }
+);
+
+modalRistoranteBtn.addEventListener(
+    "click",
+    () => {
+
+        categoriaModale =
+            "Ristorante";
+
+        aggiornaCategoriaModale();
+
+    }
+);
+
+// ======================
+// MODIFICA TURNO
+// ======================
+
+function salvaModificheTurno() {
+
+    if (
+        turnoSelezionato === null
+    ) {
+        return;
+    }
+
+    const data =
+        modalData.value;
+
+    const inizio =
+        modalInizio.value;
+
+    const fine =
+        modalFine.value;
+
+    if (
+        !data ||
+        !inizio ||
+        !fine
+    ) {
+
+        alert(
+            "Compila tutti i campi."
+        );
+
+        return;
+    }
+
+    const turni =
+        getTurni();
+
+    const indice =
+        turni.findIndex(
+            t =>
+            t.id ===
+            turnoSelezionato
+        );
+
+    if (
+        indice === -1
+    ) {
+        return;
+    }
+
+    turni[indice].data =
+        data;
+
+    turni[indice].inizio =
+        inizio;
+
+    turni[indice].fine =
+        fine;
+
+    turni[indice].categoria =
+        categoriaModale;
+
+    setTurni(turni);
+
+    chiudiModale();
+
+    renderArchivio();
+
+    alert(
+        "Turno aggiornato."
+    );
+
+}
+
+// ======================
+// ELIMINA TURNO
+// ======================
+
+function eliminaTurno() {
+
+    if (
+        turnoSelezionato === null
+    ) {
+        return;
+    }
+
+    const conferma =
+        confirm(
+            "Eliminare definitivamente il turno?"
+        );
+
+    if (!conferma) {
+        return;
+    }
+
+    const turni =
+        getTurni().filter(
+            turno =>
+            turno.id !==
+            turnoSelezionato
+        );
+
+    setTurni(turni);
+
+    chiudiModale();
+
+    renderArchivio();
+
+    alert(
+        "Turno eliminato."
+    );
+
+}
+
+// ======================
+// EVENTI MODALE
+// ======================
+
+saveEditBtn.addEventListener(
+    "click",
+    salvaModificheTurno
+);
+
+deleteTurnBtn.addEventListener(
+    "click",
+    eliminaTurno
+);
+
+closeModalBtn.addEventListener(
+    "click",
+    chiudiModale
+);
+
+// chiusura cliccando sullo sfondo
+
+modalOverlay.addEventListener(
+    "click",
+    (event) => {
+
+        if (
+            event.target ===
+            modalOverlay
+        ) {
+
+            chiudiModale();
+
+        }
+
+    }
+);
+
+// ======================
+// ESPORTAZIONE MESE
+// ======================
+
+function esportaMese(gruppo){
+
+    const settings =
+        getSettings();
+
+    const mese =
+        NOMI_MESI[
+            gruppo.mese
+        ];
+
+    let testo =
+
+`Buonasera,
+
+con la presente inoltro il riepilogo delle ore lavorate nel mese di ${mese} ${gruppo.anno}:
+
+`;
+
+    gruppo.turni
+    .sort(
+        (a,b)=>
+        a.data.localeCompare(
+            b.data
+        )
+    )
+    .forEach(turno=>{
+
+        const data =
+            new Date(
+                turno.data
+            )
+            .toLocaleDateString(
+                "it-IT"
+            );
+
+        testo +=
+`${data}: ${turno.inizio} – ${turno.fine}
+`;
+
+    });
+
+    testo +=
+
+`
+
+Cordiali saluti,
+
+${settings.nome}
+`;
+
+    navigator.clipboard
+    .writeText(testo)
+    .then(()=>{
+
+        alert(
+            "Testo copiato negli appunti."
+        );
+
+    });
+
+}
+
+// ======================
+// IMPOSTAZIONI
+// ======================
+
+function salvaImpostazioni(){
+
+    const nome =
+        nomeInput.value.trim();
+
+    if(!nome){
+
+        alert(
+            "Inserisci un nome."
+        );
+
+        return;
+
+    }
+
+    setSettings({
+
+        nome
+
+    });
+
+    alert(
+        "Impostazioni salvate."
+    );
+
+}
+
+salvaImpostazioniBtn
+.addEventListener(
+    "click",
+    salvaImpostazioni
+);
+
+// ======================
+// ESPORTA BACKUP
+// ======================
+
+function esportaBackup(){
+
+    const backup = {
+
+        settings:
+            getSettings(),
+
+        turni:
+            getTurni()
+
+    };
+
+    const blob =
+        new Blob(
+
+            [
+                JSON.stringify(
+                    backup,
+                    null,
+                    2
+                )
+            ],
+
+            {
+                type:
+                "application/json"
+            }
+
+        );
+
+    const url =
+        URL.createObjectURL(
+            blob
+        );
+
+    const a =
+        document.createElement(
+            "a"
+        );
+
+    a.href = url;
+
+    a.download =
+        "backup_turni.json";
+
+    document.body
+    .appendChild(a);
+
+    a.click();
+
+    document.body
+    .removeChild(a);
+
+    URL.revokeObjectURL(
+        url
+    );
+
+}
+
+exportBackupBtn
+.addEventListener(
+    "click",
+    esportaBackup
+);
+
+// ======================
+// IMPORTA BACKUP
+// ======================
+
+function importaBackup(){
+
+    const file =
+        importBackupInput
+        .files[0];
+
+    if(!file){
+
+        alert(
+            "Seleziona un file."
+        );
+
+        return;
+
+    }
+
+    const reader =
+        new FileReader();
+
+    reader.onload =
+        function(event){
+
+        try{
+
+            const backup =
+                JSON.parse(
+                    event.target
+                    .result
+                );
+
+            if(
+                !backup.turni
+            ){
+
+                throw new Error();
+
+            }
+
+            localStorage
+            .setItem(
+
+                "turni",
+
+                JSON.stringify(
+                    backup.turni
+                )
+
+            );
+
+            localStorage
+            .setItem(
+
+                "settings",
+
+                JSON.stringify(
+                    backup.settings
+                )
+
+            );
+
+            alert(
+                "Backup importato."
+            );
+
+            renderArchivio();
+
+        }
+        catch{
+
+            alert(
+                "File non valido."
+            );
+
+        }
+
+    };
+
+    reader.readAsText(
+        file
+    );
+
+}
+
+importBackupBtn
+.addEventListener(
+    "click",
+    importaBackup
+);
+
+// ======================
+// SERVICE WORKER
+// ======================
+
+if(
+    "serviceWorker"
+    in navigator
+){
+
+    window.addEventListener(
+        "load",
+        ()=>{
+
+            navigator
+            .serviceWorker
+            .register(
+                "./service-worker.js"
+            );
+
+        }
+    );
+
+}
